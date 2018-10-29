@@ -1,0 +1,46 @@
+version: '3.6'
+
+services:
+  graphitestatsd:
+    image: hopsoft/graphite-statsd
+    expose:
+      - 80
+      - 8125/udp
+    ports:
+      - 8080:80
+
+  nsqlookupd:
+    image: nsqio/nsq
+    ports:
+      - "4160:4160"
+      - "4161:4161"
+    command: /nsqlookupd
+
+  nsqadmin:
+    image: nsqio/nsq
+    ports:
+      - "4171:4171"
+    depends_on:
+      - nsqlookupd
+      - nsqd
+      - graphitestatsd
+    command: /nsqadmin --lookupd-http-address=nsqlookupd:4161 --graphite-url=http://graphitestatsd --proxy-graphite=true
+
+  nsqd:
+    image: nsqio/nsq
+    volumes:
+      - /data
+    ports:
+      - "4150:4150"
+      - "4151:4151"
+    depends_on:
+      - nsqlookupd
+      - graphitestatsd
+    command: /nsqd --lookupd-tcp-address=nsqlookupd:4160 --broadcast-address=nsqd --data-path=/data --statsd-address=graphitestatsd:8125
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - 3000:3000
+    links:
+      - graphitestatsd
