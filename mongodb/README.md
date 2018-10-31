@@ -1,2 +1,7 @@
 # MongoDB docker-file
-This repo content different dockerfiles for mongodb with mongo-express.
+This dockerfile is for mongodb with mongo-express.
+
+```
+username = root
+password = example
+```
