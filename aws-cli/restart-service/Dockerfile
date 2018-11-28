@@ -23,4 +23,5 @@ VOLUME /root/.aws
 VOLUME /project
 WORKDIR /root
 
+COPY . .
 CMD ["aws --region ${REGION} ecs update-service --cluster ${CLUSTER} --service ${SERVICE} --force-new-deployment"]
